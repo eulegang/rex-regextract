@@ -42,6 +42,25 @@ impl Extractor {
             Extraction { header, values }
         })
     }
+
+    pub fn extract_multi<'s, 'line>(&'s self, line: &'line str) -> Vec<Extraction<'s, 'line>> {
+        self.regex
+            .captures_iter(line)
+            .map(|captures| {
+                let mut header = Vec::new();
+                let mut values = Vec::new();
+
+                for (i, name) in self.regex.capture_names().enumerate() {
+                    if let Some(name) = name {
+                        header.push(name);
+                        values.push(captures.get(i).unwrap().as_str());
+                    }
+                }
+
+                Extraction { header, values }
+            })
+            .collect()
+    }
 }
 
 impl<'extractor, 'line> Extraction<'extractor, 'line> {

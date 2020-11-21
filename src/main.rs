@@ -25,6 +25,10 @@ pub struct RexCli {
     /// Format to export
     #[structopt(short, long, default_value = "csv", possible_values = format::FORMATS)]
     format: format::Format,
+
+    /// Find multiple matches per line
+    #[structopt(short, long)]
+    multiple: bool,
 }
 
 fn main() -> eyre::Result<()> {
@@ -39,11 +43,20 @@ fn main() -> eyre::Result<()> {
 
     let mut first = true;
     for line in cli.input {
-        if let Some(extraction) = extracter.extract(&line) {
-            cli.format
-                .line_match(&mut cli.output, &extraction, first)
-                .wrap_err("Failed to write record information")?;
-            first = false;
+        if !cli.multiple {
+            if let Some(extraction) = extracter.extract(&line) {
+                cli.format
+                    .line_match(&mut cli.output, &extraction, first)
+                    .wrap_err("Failed to write record information")?;
+                first = false;
+            }
+        } else {
+            for extraction in extracter.extract_multi(&line) {
+                cli.format
+                    .line_match(&mut cli.output, &extraction, first)
+                    .wrap_err("Failed to write record information")?;
+                first = false;
+            }
         }
     }
 
