@@ -1,59 +1,44 @@
-use clap::{crate_version, value_t, App, Arg};
+use eyre::WrapErr;
 use regex::Regex;
+use structopt::StructOpt;
 
 mod extracter;
 mod io;
 
 use extracter::Extractor;
 
-fn main() -> Result<(), String> {
-    let app = App::new("rex")
-        .version(crate_version!())
-        .arg(Arg::with_name("regex").takes_value(true).required(true))
-        .arg(
-            Arg::with_name("input")
-                .takes_value(true)
-                .short("i")
-                .long("input")
-                .help("file to read")
-                .default_value("-"),
-        )
-        .arg(
-            Arg::with_name("output")
-                .takes_value(true)
-                .short("o")
-                .long("output")
-                .help("file to write to")
-                .default_value("-"),
-        )
-        .arg(
-            Arg::with_name("format")
-                .takes_value(true)
-                .short("f")
-                .long("format")
-                .possible_values(&["csv"])
-                .default_value("csv"),
-        );
+#[derive(StructOpt)]
+#[structopt(name = "rex", about = "regex extractor")]
+pub struct RexCli {
+    /// Regex to search input
+    regex: String,
 
-    let matches = app.get_matches();
+    /// File to use as input (- for stdin)
+    #[structopt(short, long, default_value = "-")]
+    input: String,
 
-    let regex_param = value_t!(matches, "regex", String).unwrap();
+    /// File to use as output (- for stdout)
+    #[structopt(short, long, default_value = "-")]
+    output: String,
 
-    let regex = Regex::new(&regex_param).map_err(|_| format!("Invalid regex: {}", &regex_param))?;
+    /// Format to export
+    #[structopt(short, long, default_value = "csv")]
+    format: String,
+}
 
+fn main() -> eyre::Result<()> {
+    let cli = RexCli::from_args();
+
+    let regex = Regex::new(&cli.regex).wrap_err("Invalid regex")?;
     let extracter = Extractor::new(regex);
 
-    let input_param = value_t!(matches, "input", String).unwrap();
-    let input = io::Input::new(&input_param)
-        .map_err(|_| format!("Unable to find input: {}", &input_param))?;
+    let input = io::Input::new(&cli.input).wrap_err("failed to setup input")?;
+    let mut output =
+        io::Output::new(&cli.output, &cli.format).wrap_err("failed to setup output")?;
 
-    let output_param = value_t!(matches, "output", String).unwrap();
-    let format_param = value_t!(matches, "format", String).unwrap();
-
-    let mut output = io::Output::new(&output_param, &format_param)
-        .map_err(|_| format!("Unable to find output: {}", &output_param))?;
-
-    output.headers(extracter.headers()).expect("todo");
+    output
+        .headers(extracter.headers())
+        .wrap_err("failed to set headers")?;
 
     for line in input {
         if let Some(extraction) = extracter.extract(&line) {

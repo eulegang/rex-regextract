@@ -11,6 +11,10 @@ clap = "2.33"
 regex = "1"
 csv = "1.1"
 
+structopt = "0.3"
+thiserror = "1.0"
+eyre = "0.6"
+
 [[bin]]
 name = "rex"
 path = "src/main.rs"

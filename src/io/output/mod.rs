@@ -9,10 +9,15 @@ pub enum Output {
     Csv(csv::CSV),
 }
 
-#[derive(Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum Error {
-    IO(io::Error),
-    Csv(CsvError),
+    #[error("io failed: {0}")]
+    IO(#[from] io::Error),
+
+    #[error("failed to write csv: {0}")]
+    Csv(#[from] CsvError),
+
+    #[error("unsupported format")]
     UnsupportedFormat,
 }
 
@@ -80,17 +85,5 @@ impl Write for Fout {
                 handle.flush()
             }
         }
-    }
-}
-
-impl From<CsvError> for Error {
-    fn from(csv_err: CsvError) -> Error {
-        Error::Csv(csv_err)
-    }
-}
-
-impl From<io::Error> for Error {
-    fn from(err: io::Error) -> Error {
-        Error::IO(err)
     }
 }
