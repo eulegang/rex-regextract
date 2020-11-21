@@ -7,8 +7,8 @@ pub struct Extractor {
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Extraction<'e, 'line> {
-    pub header: Vec<&'e str>,
-    pub values: Vec<&'line str>,
+    header: Vec<&'e str>,
+    values: Vec<&'line str>,
 }
 
 impl Extractor {
@@ -38,5 +38,21 @@ impl Extractor {
 
             Extraction { header, values }
         })
+    }
+}
+
+impl<'extractor, 'line> Extraction<'extractor, 'line> {
+    pub fn pairs(&self) -> Vec<(&'extractor str, &'line str)> {
+        let mut buf = Vec::with_capacity(self.header.len());
+
+        for i in 0..self.header.len() {
+            buf.push((self.header[i], self.values[i]));
+        }
+
+        buf
+    }
+
+    pub fn values(&self) -> &[&'line str] {
+        &self.values
     }
 }

@@ -1,22 +1,34 @@
 use std::fs::File;
 use std::io::{self, BufRead, BufReader};
+use std::str::FromStr;
 
-pub enum Input<'b> {
+pub enum Input {
     File(BufReader<File>),
     Stdio,
-    Bytes(&'b [u8]),
 }
 
-impl Input<'_> {
-    pub fn new(path: &str) -> io::Result<Input> {
-        match path {
+#[derive(thiserror::Error, Debug)]
+pub enum InputError {
+    #[error("Failed to read \"#{0}\": {1}")]
+    FileRead(String, io::Error),
+}
+
+impl FromStr for Input {
+    type Err = InputError;
+
+    fn from_str(s: &str) -> Result<Self, InputError> {
+        match s {
             "-" => Ok(Input::Stdio),
-            otherwise => File::open(otherwise).map(BufReader::new).map(Input::File),
+            filename => {
+                let file = File::open(filename)
+                    .map_err(|e| InputError::FileRead(filename.to_string(), e))?;
+                Ok(Input::File(BufReader::new(file)))
+            }
         }
     }
 }
 
-impl Iterator for Input<'_> {
+impl Iterator for Input {
     type Item = String;
 
     fn next(&mut self) -> Option<String> {
@@ -24,7 +36,6 @@ impl Iterator for Input<'_> {
 
         let size = match self {
             Input::File(f) => f.read_line(&mut buf),
-            Input::Bytes(b) => b.read_line(&mut buf),
             Input::Stdio => {
                 let stdin = io::stdin();
                 let mut handle = stdin.lock();
