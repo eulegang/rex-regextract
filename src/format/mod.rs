@@ -2,6 +2,9 @@ use crate::extracter::Extraction;
 use std::io::{self, Write};
 use std::str::FromStr;
 
+#[cfg(test)]
+mod test;
+
 pub const FORMATS: &[&str] = &[
     "csv",
     "csv-no-header",
@@ -12,6 +15,7 @@ pub const FORMATS: &[&str] = &[
     "json-seq",
 ];
 
+#[derive(Debug, PartialEq, Eq)]
 pub enum Format {
     Csv,
     CsvNoHeader,
@@ -80,13 +84,20 @@ impl Format {
 fn json_format(extraction: &Extraction) -> String {
     let mut kvs = Vec::new();
     for (header, value) in extraction.pairs() {
-        let header = header.replace('\"', "\\n");
-        let value = value.replace('\"', "\\\"");
+        let header = json_str_encode(header);
+        let value = json_str_encode(value);
 
         kvs.push(format!("\"{}\":\"{}\"", header, value));
     }
 
     format!("{{{}}}", kvs.join(","))
+}
+
+fn json_str_encode(input: &str) -> String {
+    input
+        .replace('"', "\\\"")
+        .replace('\n', "\\n")
+        .replace('\t', "\\t")
 }
 
 fn sv_format(extraction: &Extraction, sep: &str) -> String {
@@ -134,7 +145,7 @@ impl FromStr for Format {
     }
 }
 
-#[derive(thiserror::Error, Debug)]
+#[derive(thiserror::Error, Debug, PartialEq, Eq)]
 pub enum FormatError {
     #[error("{0} is not a valid format")]
     DoesNotExist(String),

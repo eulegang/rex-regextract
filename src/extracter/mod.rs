@@ -1,5 +1,8 @@
 use regex::Regex;
 
+#[cfg(test)]
+mod test;
+
 pub struct Extractor {
     regex: Regex,
     headers: Vec<String>,
@@ -42,6 +45,14 @@ impl Extractor {
 }
 
 impl<'extractor, 'line> Extraction<'extractor, 'line> {
+    #[allow(dead_code)]
+    pub(crate) fn mock(
+        header: Vec<&'extractor str>,
+        values: Vec<&'line str>,
+    ) -> Extraction<'extractor, 'line> {
+        Extraction { header, values }
+    }
+
     pub fn pairs(&self) -> Vec<(&'extractor str, &'line str)> {
         let mut buf = Vec::with_capacity(self.header.len());
 
