@@ -1,6 +1,6 @@
 [package]
 name = "rex-regextract"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["eulegang <eulegang@eulegang.dev>"]
 edition = "2018"
 
@@ -8,7 +8,7 @@ description = "extracts key value pairs out of text"
 repository = "https://github.com/eulegang/rex-regextract"
 license = "MIT OR Apache-2.0"
 keywords = [ "regex", "extract", "kv" ]
-categories = [ "command-line-utilties", "text-processing" ]
+categories = [ "command-line-utilities", "text-processing" ]
 
 [dependencies]
 regex = "1"
