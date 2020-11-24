@@ -1,0 +1,129 @@
+.TH REX 1 "November 2020"
+
+.SH NAME
+rex \- extract key/values with regexes
+
+.SH SYNOPSIS
+
+rex \fIregex\fR [\fB-m\fR | \fB--multiple\fR] 
+[\fB-i\fR | -\fB--input\fR] \fIinput_file\fR 
+[\fB-o\fR | -\fB--output\fR] \fIoutput_file\fR 
+[\fB-f\fR | -\fB--format\fR] \fIformat\fR 
+
+.SH DESCRIPTION
+extract key value pairs from text via a regex
+.SH OPTIONS
+
+.RS 2
+<\fIregex\fR>
+.RS 2
+A regex to extract text, should contain named capture groups for the key
+.RE
+.RE
+
+.RS 2
+\fB-i | --input\fR <\fIinput_file\fR>
+.RS 2
+.P
+Which file to read in and extract values from.
+.P
+"\fI-\fR" stands for stdin.
+.P
+defaults to "\fI-\fR"
+.RE
+.RE
+
+.RS 2
+\fB-o | --output\fR <\fIoutput_file\fR>
+.RS 2
+.P
+Which file to write extracted values to.
+.P
+"\fI-\fR" stands for stdout.
+.P
+defaults to "\fI-\fR"
+.RE
+.RE
+
+.RS 2
+\fB-m | --multiple\fR
+.RS 2
+.P
+Applies the regex multiple times per line.
+.RE
+.RE
+
+.RS 2
+\fB-f | --format\fR <\fIformat\fR>
+.RS 2
+.P
+The format to output. See the \fB"FORMATS"\fR section
+.RE
+.RE
+
+.SH ENVIRONMENT
+
+.RS 2
+REX_FORMAT
+.RS 2
+Set a default FORMAT for rex to output with
+.RE
+.RE
+
+.RS 2
+REX_MULTIPLE
+.RS 2
+Default to using the regex multiple times per line.  
+.RE
+.RE
+
+.SH FORMAT
+
+.RS 2
+csv
+.RS 2
+comma seperated values with a header
+.RE
+.RE
+
+.RS 2
+csv-no-headers
+.RS 2
+comma seperated values without a header
+.RE
+.RE
+
+.RS 2
+tsv
+.RS 2
+tab seperated values with a header
+.RE
+.RE
+
+.RS 2
+tab-no-headers
+.RS 2
+tab seperated values without a header
+.RE
+.RE
+
+.RS 2
+json
+.RS 2
+JavaScript object notation
+.RE
+.RE
+
+.RS 2
+ldjson
+.RS 2
+Line Delimited JavaScript object notation
+.RE
+.RE
+
+.RS 2
+json-seq
+.RS 2
+JavaScript object notation sequences (rfc7464)
+.RE
+.RE
