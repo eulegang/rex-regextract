@@ -23,11 +23,11 @@ pub struct RexCli {
     output: io::Output,
 
     /// Format to export
-    #[structopt(short, long, default_value = "csv", possible_values = format::FORMATS)]
+    #[structopt(short, long, env = "REX_FORMAT", default_value = "csv", possible_values = format::FORMATS)]
     format: format::Format,
 
     /// Find multiple matches per line
-    #[structopt(short, long)]
+    #[structopt(short, long, env = "REX_MULTIPLE")]
     multiple: bool,
 }
 
